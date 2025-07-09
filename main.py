@@ -10,6 +10,8 @@ class PersonalFinanceTracker:
         self.is_running = True
         self.valid_message = ""
         self.menu_options = [
+            #TODO import a csv from file explorer
+            {"msg": "Import a CSV File", "fn": self.data_management.use_csv},
             {"msg": "View All Transactions", "fn": self.data_management.view},
             {"msg": "View Transactions by Date Range", "fn": lambda: self.data_management.view(dateRange=True)},
             {"msg": "Add a Transaction", "fn": self.data_management.add},
