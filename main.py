@@ -20,7 +20,7 @@ class PersonalFinanceTracker:
             {"msg": "Analyze Spending by Category", "fn": self.data_analysis.analyze_spending_by_category},
             {"msg": "Calculate Average Monthly Spending", "fn": self.data_analysis.calculate_average_monthly_spending},
             {"msg": "Show Top Spending Category", "fn": self.data_analysis.show_top_spending_category},
-            {"msg": "Visualize menu", "fn": self.visualization.show_menu},
+            {"msg": "Show visualization menu", "fn": self.visualization.show_menu},
             {"msg": "Save Transactions to CSV", "fn": self.data_management.save},
             {"msg": "Exit", "fn": self._exit_program}
         ]
