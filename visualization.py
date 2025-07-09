@@ -1,8 +1,25 @@
 import matplotlib.pyplot as plt
+from menu_screen import MenuScreen
 
 class DataVisualization:
     def __init__(self, data):
         self.data = data
+        self.menu_screen = MenuScreen(
+            top_message="=== Visualization Menu ===",
+            exit_message="Returning to main menu...",
+            menu_options = [
+                {"msg": "monthly spending trend", "fn": self.monthly_spending_trend},
+                {"msg": "spending by category", "fn": self.spending_by_category},
+                {"msg": "percentage of spending by category", "fn": self.percentage_categories},
+                {"msg": "monthly income vs spending", "fn": self.monthly_income_vs_spending},
+                {"msg": "visualize category spending vs budget", "fn": self.category_spending_vs_budget},
+                {"msg": "visualize income and expenses", "fn": self.income_and_expenses},
+            ]
+        )
+        
+    def show_menu(self):
+        self.menu_screen.run()
+        self.menu_screen.is_running = True
 
     def monthly_spending_trend(self):
         monthly_data = self.data[['Date', 'Amount']].groupby(self.data['Date'].dt.to_period('M')).sum('Amount')
