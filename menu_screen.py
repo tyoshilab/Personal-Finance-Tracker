@@ -1,31 +1,13 @@
 import os
-import sys
-from data_management import DataManagement
-from data_analysis import DataAnalysis
-from visualization import DataVisualization
 
-class PersonalFinanceTracker:
-    def __init__(self):
-        self.data_management = DataManagement()
-        self.data_analysis = DataAnalysis(self.data_management.transactions)
-        self.visualization = DataVisualization(self.data_management.transactions)
+class MenuScreen:
+    def __init__(self, top_message, exit_message, menu_options):
         self.is_running = True
+        self.top_message = top_message
         self.valid_message = ""
-        self.menu_options = [
-            #TODO import a csv from file explorer
-            {"msg": "Import a CSV File", "fn": self.data_management.use_csv},
-            {"msg": "View All Transactions", "fn": self.data_management.view},
-            {"msg": "View Transactions by Date Range", "fn": lambda: self.data_management.view(dateRange=True)},
-            {"msg": "Add a Transaction", "fn": self.data_management.add},
-            {"msg": "Edit a Transaction", "fn": self.data_management.edit},
-            {"msg": "Delete a Transaction", "fn": self.data_management.delete},
-            {"msg": "Analyze Spending by Category", "fn": self.data_analysis.analyze_spending_by_category},
-            {"msg": "Calculate Average Monthly Spending", "fn": self.data_analysis.calculate_average_monthly_spending},
-            {"msg": "Show Top Spending Category", "fn": self.data_analysis.show_top_spending_category},
-            {"msg": "Show visualization menu", "fn": self.visualization.show_menu},
-            {"msg": "Save Transactions to CSV", "fn": self.data_management.save},
-            {"msg": "Exit", "fn": self._exit_program}
-        ]
+        self.exit_message = exit_message
+        self.menu_options = menu_options
+        self.menu_options.append({"msg": "Exit", "fn": self._exit_program})
 
     def run(self):
         """Main application loop."""
@@ -50,7 +32,7 @@ class PersonalFinanceTracker:
             print(f"{self.valid_message}\n")
             self.valid_message = ""
         
-        print("=== Personal Finance Tracker ===")
+        print(self.top_message)
         print()
         for index, option in enumerate(self.menu_options, start=1):
             print(f"{index}. {option['msg']}")
@@ -83,10 +65,6 @@ class PersonalFinanceTracker:
             
             # Execute the selected function
             selected_option["fn"]()
-            
-            # Refresh data analysis if transactions might have changed
-            if choice in [3, 4, 5]:  # Add, Edit, Delete operations
-                self.data_analysis = DataAnalysis(self.data_management.transactions)
                 
         except Exception as e:
             self.valid_message = f"Error executing menu option: {e}"
@@ -94,21 +72,4 @@ class PersonalFinanceTracker:
     def _exit_program(self):
         """Exit the application gracefully."""
         self.is_running = False
-        print("Exiting the Personal Finance Tracker. Goodbye!")
-
-
-def main():
-    """Entry point of the application."""
-    try:
-        app = PersonalFinanceTracker()
-        app.run()
-    except KeyboardInterrupt:
-        print("\nApplication terminated by user.")
-        sys.exit(0)
-    except Exception as e:
-        print(f"Fatal error: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+        print(self.exit_message)

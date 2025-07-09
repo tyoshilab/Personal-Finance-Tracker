@@ -11,6 +11,7 @@ class DataManagement:
     def load_transactions(self, file_path) -> pd.DataFrame:
         try:
             transactions = pd.read_csv(file_path)
+            transactions['Date'] = pd.to_datetime(transactions['Date'])
         except FileNotFoundError:
             transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
         except pd.errors.EmptyDataError:
