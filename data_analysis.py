@@ -15,7 +15,6 @@ class DataAnalysis:
 
     def show_top_spending_category(self):
         print("Showing top spending category")
-
         category_max = self.spending_by_category.idxmax()
         amount_max = self.spending_by_category.max()
         print(f'{category_max} with ${amount_max} total spending is the highest.')
