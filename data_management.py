@@ -9,12 +9,12 @@ class DataManagement:
             transactions = pd.read_csv(self.file_path)
             transactions['Date'] = pd.to_datetime(transactions['Date'])
         except FileNotFoundError:
-            transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
+            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         except pd.errors.EmptyDataError:
-            transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
+            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         except Exception as e:
             print(f"An error occurred while loading transactions: {e}")
-            transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
+            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         
         return transactions
     
