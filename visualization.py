@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from menu_screen import MenuScreen
+import pandas as pd
 
 class DataVisualization:
     def __init__(self, data):
@@ -47,7 +48,24 @@ class DataVisualization:
         plt.show()
 
     def monthly_income_vs_spending(self):
-        print("ex_TODO: Visualizing monthly income vs spending")
+        monthly_data = self.data.copy()
+        monthly_data['Month'] = monthly_data['Date'].dt.to_period('M')
+        
+        monthly_summary = monthly_data.groupby(['Month', 'Type'])['Amount'].sum().unstack(fill_value=0)
+        
+        # Extract income and expense data, handle missing columns
+        income_data = monthly_summary.get('Income', pd.Series(0, index=monthly_summary.index))
+        expense_data = monthly_summary.get('Expense', pd.Series(0, index=monthly_summary.index))
+        months = monthly_summary.index.astype(str)
+        
+        plt.plot(months, income_data, marker='o', label='Income', color='blue', linewidth=2)
+        plt.plot(months, expense_data, marker='o', label='Expense', color='orange', linewidth=2)
+        plt.title('Monthly Income vs Spending')
+        plt.ylabel('Amount')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        print("Visualizing monthly income vs spending...")
+        plt.show()
 
     def category_spending_vs_budget(self):
         print("ex_TODO: Visualizing spending distribution")
