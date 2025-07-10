@@ -71,4 +71,10 @@ class DataVisualization:
         print("ex_TODO: Visualizing spending distribution")
 
     def income_and_expenses(self):
-        print("ex_TODO: Visualizing income and expenses")
+        df = self.data.copy()
+        df.loc[df['Type']=='Income','Category'] = 'Income'
+
+        plt.pie(df.groupby('Category')['Amount'].sum(), labels=df.groupby('Category')['Amount'].sum().index, autopct='%1.1f%%')
+        plt.title('Income and Expenses Distribution')
+        print("Visualizing income and expenses distribution...")
+        plt.show()
