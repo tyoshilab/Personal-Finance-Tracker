@@ -21,13 +21,13 @@ class DataManagement:
             transactions = pd.read_csv(file_path)
             transactions['Date'] = pd.to_datetime(transactions['Date'])
         except FileNotFoundError:
-            transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
+            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         except pd.errors.EmptyDataError:
-            transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
+            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         except Exception as e:
             print(f"An error occurred while loading transactions: {e}")
-            transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
-
+            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
+        
         return transactions
 
     def view(self, dateRange = False):
@@ -221,4 +221,21 @@ class DataManagement:
         print("Transaction deleted successfully.")
 
     def save(self):
-        print("TODO: Saving transactions to CSV")
+        while True:
+            input_file_path = input(f"Enter file path to save transactions(default is {self.file_path}): " or self.file_path).strip()
+            if any(char in input_file_path for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']):
+                print("Invalid file name. Please avoid using characters like /, \\, :, *, ?, \", <, >, |.")
+                continue
+            if not input_file_path.endswith('.csv'):
+                input_file_path += '.csv'
+            break
+        try:
+            self.transactions.to_csv(input_file_path, index=False)
+        except PermissionError:
+            print(f"Permission denied: Unable to save to {input_file_path}. Please close the file if it's open.")
+            return
+        except Exception as e:
+            print(f"An error occurred while saving transactions: {e}")
+            return
+        print(f"Transactions saved to {input_file_path} successfully!")
+

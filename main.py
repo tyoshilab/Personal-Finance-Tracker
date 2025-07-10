@@ -3,11 +3,13 @@ import sys
 from data_management import DataManagement
 from data_analysis import DataAnalysis
 from visualization import DataVisualization
+from budget_management import BudgetManagement
 
 class PersonalFinanceTracker:
     def __init__(self):
         self.data_management = DataManagement()
         self.data_analysis = DataAnalysis(self.data_management.transactions)
+        self.budget_management = BudgetManagement(self.data_management.transactions)
         self.visualization = DataVisualization(self.data_management.transactions)
         self.is_running = True
         self.valid_message = ""
@@ -22,6 +24,8 @@ class PersonalFinanceTracker:
             {"msg": "Analyze Spending by Category", "fn": self.data_analysis.analyze_spending_by_category},
             {"msg": "Calculate Average Monthly Spending", "fn": self.data_analysis.calculate_average_monthly_spending},
             {"msg": "Show Top Spending Category", "fn": self.data_analysis.show_top_spending_category},
+            {"msg": "Set Category Budget", "fn": self.budget_management.set_category_budget},
+            {"msg": "Check Budget Status", "fn": self.budget_management.check_budget_status},
             {"msg": "Show visualization menu", "fn": self.visualization.show_menu},
             {"msg": "Save Transactions to CSV", "fn": self.data_management.save},
             {"msg": "Exit", "fn": self._exit_program}
