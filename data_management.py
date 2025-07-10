@@ -31,7 +31,6 @@ class DataManagement:
         return transactions
 
     def view(self, dateRange = False):
-        #TODO: Change date printing
         if self.transactions.empty:
             print("No transactions found.")
         else:
