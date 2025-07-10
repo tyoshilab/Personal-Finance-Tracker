@@ -31,18 +31,37 @@ class DataManagement:
         return transactions
 
     def view(self, dateRange = False):
+        #TODO: Change date printing
         if self.transactions.empty:
             print("No transactions found.")
         else:
             if dateRange:
-                ordered_transactions = self.transactions.sort_values('Date')
-                first_date = ordered_transactions['Date'].iloc[0]
-                last_date = ordered_transactions['Date'].iloc[-1]
-                print(f"--- Transactions from {first_date.date()} to {last_date.date()} ---")
+                while True:
+                    first_date = input("Enter the start date (YYYY-MM-DD): ")
+                    is_valid, first_date = validate_date(first_date)
+                    if is_valid:
+                        break
+
+                while True:
+                    last_date = input("Enter the end date (YYYY-MM-DD): ")
+                    is_valid, last_date = validate_date(last_date)
+                    if is_valid:
+                        break
+
+
+                print(f"--- Transactions from {first_date} to {last_date} ---")
+
+                mask = (self.transactions["Date"].dt.date >= first_date) & (
+                            self.transactions["Date"].dt.date <= last_date)
+                filtered_transactions = self.transactions[mask]
+                ordered_transactions = filtered_transactions.sort_values('Date')
                 print(ordered_transactions)
             else:
                 print("--- All Transactions ---")
-                print(self.transactions)
+
+                printable_transactions = self.transactions.copy()
+                printable_transactions["Date"] = printable_transactions["Date"].apply(lambda d: d.strftime("%Y-%m-%d") if pd.notnull(d) else "")
+                print(printable_transactions.to_string(index=False))
 
     def add(self):
         print("--- Add Transactions ---")
