@@ -1,10 +1,18 @@
 import pandas as pd
+from validations import *
 
 class DataManagement:
     def __init__(self):
-        self.transactions = pd.DataFrame(columns=['date', 'category', 'description', 'amount', 'type'])
+        self.transactions = pd.DataFrame({
+            'Date': pd.Series(dtype='str'),
+            'Category': pd.Series(dtype='str'),
+            'Description': pd.Series(dtype='str'),
+            'Amount': pd.Series(dtype='float'),
+            'Type': pd.Series(dtype='str')
+        })
 
     def use_csv(self):
+        # TODO: Do not replace, add the imported transactions
         file_path = "sampledata.csv"
         self.transactions = self.load_transactions(file_path)
 
@@ -27,20 +35,190 @@ class DataManagement:
             print("No transactions found.")
         else:
             if dateRange:
-                # dateRange logic would go here
-                print("--- Transactions from 2024-10-02 to 2024-10-03 ---")
+                ordered_transactions = self.transactions.sort_values('Date')
+                first_date = ordered_transactions['Date'].iloc[0]
+                last_date = ordered_transactions['Date'].iloc[-1]
+                print(f"--- Transactions from {first_date.date()} to {last_date.date()} ---")
+                print(ordered_transactions)
             else:
                 print("--- All Transactions ---")
                 print(self.transactions)
 
     def add(self):
-        print("TODO: Adding a new transaction")
+        print("--- Add Transactions ---")
+
+        while True:
+            print("Select the transaction type (1 or 2):")
+            for i, t_type in enumerate(TRANSACTION_TYPES, start=1):
+                print(f"{i}. {t_type}")
+            trans_type = input()
+            is_valid, trans_type = validate_transaction_type(trans_type)
+            if is_valid:
+                break
+
+        while True:
+            desc = input("Add the transaction description: ")
+            is_valid = validate_text(desc)
+            if is_valid:
+                break
+
+        while True:
+            category = input("Add the category: ")
+            is_valid = validate_text(category)
+            if is_valid:
+                break
+
+        while True:
+            amount = input("Add the amount: ")
+            is_valid, amount = validate_money(amount)
+            if is_valid:
+                break
+
+        while True:
+            trans_date = input("Add the transaction date (YYYY-MM-DD): ")
+            is_valid, trans_date = validate_date(trans_date)
+            if is_valid:
+                break
+
+        # test_trans = {'Date': '2025-12-12', 'Category': 'TESTING', 'Description': 'TEST', 'Amount': 50.0, 'Type': 'Expense'}
+
+        transaction = {
+            'Date': trans_date.isoformat(),
+            'Category': category,
+            'Description': desc,
+            'Amount': amount,
+            'Type': trans_type
+        }
+
+        new_transaction = pd.DataFrame([transaction])
+        self.transactions = pd.concat([self.transactions, new_transaction], ignore_index=True)
+
+        print("Transaction added successfully.")
+
 
     def edit(self):
-        print("TODO: Editing an existing transaction")
+        print("--- Edit Transaction ---")
+
+        if self.transactions.empty:
+            print("No transactions to edit.")
+            return
+
+        for i, row in self.transactions.iterrows():
+            print(f"{i}. {row['Date']} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+
+        print("Enter the number of the transaction you want to edit (or 'c' to cancel):")
+
+        while True:
+            user_input = input("> ").strip()
+            if user_input.lower() == 'c':
+                print("Edit cancelled.")
+                return
+            try:
+                trans_id = int(user_input)
+                if 0 <= trans_id < len(self.transactions):
+                    break
+                else:
+                    print("Please enter a number from the list.")
+            except ValueError:
+                print("Invalid input. Enter a number or 'c' to cancel.")
+
+        transaction = self.transactions.loc[trans_id].to_dict()
+
+        print("Press Enter to keep current value.")
+
+        while True:
+            new_date = input(f"Date [{transaction['Date'].date()}]: ").strip()
+            if not new_date:
+                break
+            is_valid, val = validate_date(new_date)
+            if is_valid:
+                transaction['Date'] = val.isoformat()
+                break
+            else:
+                print("Invalid date. Please enter in YYYY-MM-DD format.")
+
+        while True:
+            new_cat = input(f"Category [{transaction['Category']}]: ").strip()
+            if not new_cat:
+                break
+            is_valid = validate_text(new_cat)
+            if is_valid:
+                transaction['Category'] = new_cat
+                break
+            else:
+                print("Category cannot be empty.")
+
+        while True:
+            new_desc = input(f"Description [{transaction['Description']}]: ").strip()
+            if not new_desc:
+                break
+            is_valid = validate_text(new_desc)[0]
+            if is_valid:
+                transaction['Description'] = new_desc
+                break
+            else:
+                print("Description cannot be empty.")
+
+        while True:
+            new_amount = input(f"Amount [{transaction['Amount']}]: ").strip()
+            if not new_amount:
+                break
+            is_valid, val = validate_money(new_amount)
+            if is_valid:
+                transaction['Amount'] = val
+                break
+            else:
+                print("Invalid amount. Must be a positive number.")
+
+        while True:
+            print("Transaction Types:")
+            for idx, t_type in enumerate(TRANSACTION_TYPES, start=1):
+                print(f"{idx}. {t_type}")
+            new_type = input(f"Type [{transaction['Type']}]: ").strip()
+            if not new_type:
+                break
+            is_valid, val = validate_transaction_type(new_type)
+            if is_valid:
+                transaction['Type'] = val
+                break
+            else:
+                print("Invalid transaction type. Enter 1 or 2.")
+
+        for key, value in transaction.items():
+            self.transactions.at[trans_id, key] = value
+
+        print("Transaction updated successfully.")
 
     def delete(self):
-        print("TODO: Deleting a transaction")
+        print("--- Delete Transaction ---")
+
+        if self.transactions.empty:
+            print("No transactions to delete.")
+            return
+
+        for i, row in self.transactions.iterrows():
+            print(f"{i}. {row['Date']} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+
+        print("Enter the number of the transaction you want to delete (or 'c' to cancel):")
+
+        while True:
+            user_input = input("> ").strip()
+
+            if user_input.lower() == 'c':
+                print("Deletion cancelled.")
+                return
+            try:
+                trans_id = int(user_input)
+                if 0 <= trans_id < len(self.transactions):
+                    break
+                else:
+                    print("Please enter a number from the list.")
+            except ValueError:
+                print("Invalid input. Enter a number or 'c' to cancel.")
+
+        self.transactions = self.transactions.drop(index=trans_id).reset_index(drop=True)
+
+        print("Transaction deleted successfully.")
 
     def save(self):
         print("TODO: Saving transactions to CSV")

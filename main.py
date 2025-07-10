@@ -16,9 +16,9 @@ class PersonalFinanceTracker:
             {"msg": "Import a CSV File", "fn": self.data_management.use_csv},
             {"msg": "View All Transactions", "fn": self.data_management.view},
             {"msg": "View Transactions by Date Range", "fn": lambda: self.data_management.view(dateRange=True)},
-            {"msg": "Add a Transaction", "fn": self.data_management.add},
-            {"msg": "Edit a Transaction", "fn": self.data_management.edit},
-            {"msg": "Delete a Transaction", "fn": self.data_management.delete},
+            {"msg": "Add a Transaction", "fn": [self.data_management.add, self.refresh_data_analysis, self.refresh_visualization]},
+            {"msg": "Edit a Transaction", "fn": [self.data_management.edit, self.refresh_data_analysis, self.refresh_visualization]},
+            {"msg": "Delete a Transaction", "fn": [self.data_management.delete, self.refresh_data_analysis, self.refresh_visualization]},
             {"msg": "Analyze Spending by Category", "fn": self.data_analysis.analyze_spending_by_category},
             {"msg": "Calculate Average Monthly Spending", "fn": self.data_analysis.calculate_average_monthly_spending},
             {"msg": "Show Top Spending Category", "fn": self.data_analysis.show_top_spending_category},
@@ -82,8 +82,14 @@ class PersonalFinanceTracker:
             print(f"You selected: {choice}. {selected_option['msg']}\n")
             
             # Execute the selected function
-            selected_option["fn"]()
-            
+            fns = selected_option["fn"]
+
+            if isinstance(fns, list):
+                for fn in fns:
+                    fn()
+            else:
+                fns()
+
             # Refresh data analysis if transactions might have changed
             if choice in [3, 4, 5]:  # Add, Edit, Delete operations
                 self.data_analysis = DataAnalysis(self.data_management.transactions)
@@ -95,6 +101,12 @@ class PersonalFinanceTracker:
         """Exit the application gracefully."""
         self.is_running = False
         print("Exiting the Personal Finance Tracker. Goodbye!")
+
+    def refresh_data_analysis(self):
+        self.data_analysis = DataAnalysis(self.data_management.transactions)
+
+    def refresh_visualization(self):
+        self.visualization = DataVisualization(self.data_management.transactions)
 
 
 def main():
