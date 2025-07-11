@@ -5,10 +5,19 @@ from matplotlib import pyplot as plt
 
 class BudgetManagement:
     def __init__(self, data):
-        self.data = data
-        self.categories = self.data['Category'].unique()
+        self._data = data
+        self.categories = None
         self.budget_category_df = None
-        self.spends_and_budget = None
+
+    @property
+    def data(self):
+        return self._data
+    
+    @data.setter
+    def data(self, value):
+        self._data = value
+        self.categories = self.data['Category'].unique()
+        
     def set_category_budget(self):
         print("Set your budget")
         budget_category = {'Category': [], 'Budget': []}

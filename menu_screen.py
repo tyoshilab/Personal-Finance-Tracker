@@ -6,8 +6,17 @@ class MenuScreen:
         self.top_message = top_message
         self.valid_message = ""
         self.exit_message = exit_message
-        self.menu_options = menu_options
-        self.menu_options.append({"msg": "Exit", "fn": self._exit_program})
+        self._menu_options = menu_options
+        self._menu_options.append({"msg": "Exit", "fn": self._exit_program})
+    
+    @property
+    def menu_options(self):
+        return self._menu_options
+
+    @menu_options.setter
+    def menu_options(self, value):
+        self._menu_options = value
+        self._menu_options.append({"msg": "Exit", "fn": self._exit_program})
 
     def run(self):
         """Main application loop."""
@@ -64,7 +73,13 @@ class MenuScreen:
             print(f"You selected: {choice}. {selected_option['msg']}\n")
             
             # Execute the selected function
-            selected_option["fn"]()
+            fns = selected_option["fn"]
+
+            if isinstance(fns, list):
+                for fn in fns:
+                    fn()
+            else:
+                fns()
                 
         except Exception as e:
             self.valid_message = f"Error executing menu option: {e}"
