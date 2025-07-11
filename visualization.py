@@ -33,7 +33,7 @@ class DataVisualization:
         plt.show()
 
     def spending_by_category(self):
-        category_data = self.data.groupby('Category')['Amount'].sum().sort_values(ascending=False)
+        category_data = self.data[self.data['Type'] == 'Expense'].groupby('Category')['Amount'].sum().sort_values(ascending=False)
         plt.bar(category_data.index, category_data.values)
         plt.title('Spending by Category')
         plt.xlabel('Category')
@@ -42,7 +42,7 @@ class DataVisualization:
         plt.show()
     
     def percentage_categories(self):
-        category_data = self.data.groupby('Category')['Amount'].sum()
+        category_data = self.data[self.data['Type'] == 'Expense'].groupby('Category')['Amount'].sum()
         plt.pie(category_data, labels=category_data.index, autopct='%1.1f%%', startangle=140)
         plt.title('Spending Distribution by Category')
         print("Visualizing spending distribution by category...")
@@ -76,6 +76,11 @@ class DataVisualization:
         print(self.spends_and_budget)
         self.spends_and_budget.set_index('Category')['Budget'].plot(kind='bar')
         self.spends_and_budget.set_index('Category')['Amount'].plot(kind='bar', color='red', alpha=0.5)
+        plt.title('Category spending vs budget')
+        plt.xlabel('Category')
+        plt.ylabel('Total ($)')
+        plt.legend()
+        plt.grid(True)
         plt.show()
 
     def income_and_expenses(self):
