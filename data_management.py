@@ -70,8 +70,8 @@ class DataManagement:
 
                 print(f"--- Transactions from {first_date.strftime('%Y-%m-%d')} to {last_date.strftime('%Y-%m-%d')} ---")
 
-                mask = (self.transactions["Date"].dt.date >= first_date) & (
-                            self.transactions["Date"].dt.date <= last_date)
+                mask = (self.transactions["Date"] >= first_date) & (
+                            self.transactions["Date"] <= last_date)
                 filtered_transactions = self.transactions[mask]
                 ordered_transactions = filtered_transactions.sort_values('Date')
                 print(ordered_transactions.to_string(index=False))
@@ -184,7 +184,7 @@ class DataManagement:
             new_desc = input(f"Description [{transaction['Description']}]: ").strip()
             if not new_desc:
                 break
-            is_valid = validate_text(new_desc)[0]
+            is_valid = validate_text(new_desc)
             if is_valid:
                 transaction['Description'] = new_desc
                 break
