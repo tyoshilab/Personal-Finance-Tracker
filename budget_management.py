@@ -8,6 +8,7 @@ class BudgetManagement:
         self._data = data
         self.categories = None
         self.budget_category_df = None
+        self.spends_and_budget = None
 
     @property
     def data(self):
@@ -17,6 +18,7 @@ class BudgetManagement:
     def data(self, value):
         self._data = value
         self.categories = self.data['Category'].unique()
+        self.calc_spends_and_budget()
         
     def set_category_budget(self):
         print("Set your budget")
@@ -30,15 +32,10 @@ class BudgetManagement:
         self.budget_category_df = pd.DataFrame(budget_category)
         for index, row in self.budget_category_df.iterrows():
             print(f"- {row['Category']}: ${row['Budget']}")
-        return self.budget_category_df
-
-    def check_budget_status(self):
+    
+    def calc_spends_and_budget(self):
         if self.budget_category_df is None:
-            print("You need to set your budget")
             return
-
-        print("Budget Status Checking")
-        self.data['Date'] = pd.to_datetime(self.data['Date'])
         current_month = datetime.now().strftime("%B")
         current_year = int(datetime.now().strftime("%Y"))
         spending_by_category = self.data[self.data['Type'] == 'Expense'].groupby([self.data['Date'].dt.year.rename('Year'),
@@ -49,6 +46,14 @@ class BudgetManagement:
             (spending_by_category_df['Year'] == current_year) &
             (spending_by_category_df['Month'] == current_month)]
         self.spends_and_budget = pd.merge(self.budget_category_df, spending_current_month_df, on='Category')
+
+    def check_budget_status(self):
+        if self.budget_category_df is None:
+            print("You need to set your budget")
+            return
+
+        print("Budget Status Checking")
+
         categories_exceeded = []
         categories_close = []
         for index, row in self.spends_and_budget.iterrows():
@@ -71,7 +76,6 @@ class BudgetManagement:
                 print(f"  * {category}")
         if len(categories_close) + len(categories_exceeded) < len(self.categories):
             print('- You are on track for other categories.')
-        return self.spends_and_budget
 
 # data = pd.read_csv('sampledata.csv')
 # budget_category = {'Category': ['Food', 'Rent', 'Utilities', 'Transport'], 'Budget': [100, 1200, 300, 100]}

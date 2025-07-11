@@ -1,12 +1,11 @@
 import matplotlib.pyplot as plt
 from menu_screen import MenuScreen
 import pandas as pd
-from budget_management import BudgetManagement
 
 class DataVisualization:
-    def __init__(self, data, budget_data):
+    def __init__(self, data, spends_and_budget):
         self.data = data
-        self.budget_management = budget_data
+        self.spends_and_budget = spends_and_budget
         self.menu_screen = MenuScreen(
             top_message="=== Visualization Menu ===",
             exit_message="Returning to main menu...",
@@ -70,13 +69,13 @@ class DataVisualization:
         plt.show()
 
     def category_spending_vs_budget(self):
-        if self.budget_management.spends_and_budget is None:
+        if self.spends_and_budget is None:
             print("You need to check your Budget Status")
             return
         print("Visualizing spending distribution")
-        print(self.budget_management.spends_and_budget)
-        self.budget_management.spends_and_budget.set_index('Category')['Budget'].plot(kind='bar')
-        self.budget_management.spends_and_budget.set_index('Category')['Amount'].plot(kind='bar', color='red', alpha=0.5)
+        print(self.spends_and_budget)
+        self.spends_and_budget.set_index('Category')['Budget'].plot(kind='bar')
+        self.spends_and_budget.set_index('Category')['Amount'].plot(kind='bar', color='red', alpha=0.5)
         plt.show()
 
     def income_and_expenses(self):
