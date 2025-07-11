@@ -10,7 +10,7 @@ class PersonalFinanceTracker:
         self.data_management = DataManagement()
         self.data_analysis = DataAnalysis(self.data_management.transactions)
         self.budget_management = BudgetManagement(self.data_management.transactions)
-        self.visualization = DataVisualization(self.data_management.transactions)
+        self.visualization = DataVisualization(self.data_management.transactions, self.budget_management.spends_and_budget)
         self.menu_screen = MenuScreen(
             top_message="=== Personal Finance Tracker ===",
             exit_message="Exiting the Personal Finance Tracker. Goodbye!",
@@ -26,7 +26,7 @@ class PersonalFinanceTracker:
                 {"msg": "Analyze Spending by Category", "fn": self.data_analysis.analyze_spending_by_category},
                 {"msg": "Calculate Average Monthly Spending", "fn": self.data_analysis.calculate_average_monthly_spending},
                 {"msg": "Show Top Spending Category", "fn": self.data_analysis.show_top_spending_category},
-                {"msg": "Set Category Budget", "fn": self.budget_management.set_category_budget},
+                {"msg": "Set Category Budget", "fn": [self.budget_management.set_category_budget, self.refresh_budget]},
                 {"msg": "Check Budget Status", "fn": self.budget_management.check_budget_status},
                 {"msg": "Show visualization menu", "fn": self.visualization.show_menu},
                 {"msg": "Save Transactions to CSV", "fn": self.data_management.save}
@@ -39,8 +39,15 @@ class PersonalFinanceTracker:
         if self.data_management.transactions.empty:
             return
         self.data_analysis.data = self.data_management.transactions
-        self.visualization.data = self.data_management.transactions
         self.budget_management.data = self.data_management.transactions
+        self.visualization.data = self.data_management.transactions
+        self.visualization.spends_and_budget = self.budget_management.spends_and_budget
+    
+    def refresh_budget(self):
+        if self.data_management.transactions.empty:
+            return
+        self.budget_management.data = self.data_management.transactions
+        self.visualization.spends_and_budget = self.budget_management.spends_and_budget
     
     def show_full_menu(self):
         if self.data_management.transactions.empty:

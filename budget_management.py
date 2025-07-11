@@ -1,10 +1,14 @@
 # Manages income, budget setting, and alerts.
 import pandas as pd
+from datetime import datetime
+from matplotlib import pyplot as plt
+
 class BudgetManagement:
     def __init__(self, data):
         self._data = data
         self.categories = None
         self.budget_category_df = None
+        self.spends_and_budget = None
 
     @property
     def data(self):
@@ -14,6 +18,7 @@ class BudgetManagement:
     def data(self, value):
         self._data = value
         self.categories = self.data['Category'].unique()
+        self.calc_spends_and_budget()
         
     def set_category_budget(self):
         print("Set your budget")
@@ -27,7 +32,20 @@ class BudgetManagement:
         self.budget_category_df = pd.DataFrame(budget_category)
         for index, row in self.budget_category_df.iterrows():
             print(f"- {row['Category']}: ${row['Budget']}")
-        return self.budget_category_df
+    
+    def calc_spends_and_budget(self):
+        if self.budget_category_df is None:
+            return
+        current_month = datetime.now().strftime("%B")
+        current_year = int(datetime.now().strftime("%Y"))
+        spending_by_category = self.data[self.data['Type'] == 'Expense'].groupby([self.data['Date'].dt.year.rename('Year'),
+                                                                        self.data['Date'].dt.month_name().rename('Month'),
+                                                                        'Category'])['Amount'].sum()
+        spending_by_category_df = spending_by_category.reset_index()
+        spending_current_month_df = spending_by_category_df[
+            (spending_by_category_df['Year'] == current_year) &
+            (spending_by_category_df['Month'] == current_month)]
+        self.spends_and_budget = pd.merge(self.budget_category_df, spending_current_month_df, on='Category')
 
     def check_budget_status(self):
         if self.budget_category_df is None:
@@ -36,11 +54,9 @@ class BudgetManagement:
 
         print("Budget Status Checking")
 
-        spending_by_category = self.data[self.data['Type'] == 'Expense'].groupby('Category')['Amount'].sum()
-        spends_and_budget = pd.merge(self.budget_category_df, spending_by_category, on='Category')
         categories_exceeded = []
         categories_close = []
-        for index, row in spends_and_budget.iterrows():
+        for index, row in self.spends_and_budget.iterrows():
             if row['Budget'] < row['Amount']:
                 print(f"- {row['Category']}: ${row['Amount']} / ${row['Budget']} (Alert: Exceeded budget!)")
                 categories_exceeded.append(row['Category'])

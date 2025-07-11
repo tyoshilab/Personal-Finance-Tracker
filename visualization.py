@@ -3,8 +3,9 @@ from menu_screen import MenuScreen
 import pandas as pd
 
 class DataVisualization:
-    def __init__(self, data):
+    def __init__(self, data, spends_and_budget):
         self.data = data
+        self.spends_and_budget = spends_and_budget
         self.menu_screen = MenuScreen(
             top_message="=== Visualization Menu ===",
             exit_message="Returning to main menu...",
@@ -68,7 +69,14 @@ class DataVisualization:
         plt.show()
 
     def category_spending_vs_budget(self):
-        print("ex_TODO: Visualizing spending distribution")
+        if self.spends_and_budget is None:
+            print("You need to check your Budget Status")
+            return
+        print("Visualizing spending distribution")
+        print(self.spends_and_budget)
+        self.spends_and_budget.set_index('Category')['Budget'].plot(kind='bar')
+        self.spends_and_budget.set_index('Category')['Amount'].plot(kind='bar', color='red', alpha=0.5)
+        plt.show()
 
     def income_and_expenses(self):
         df = self.data.copy()
@@ -78,3 +86,4 @@ class DataVisualization:
         plt.title('Income and Expenses Distribution')
         print("Visualizing income and expenses distribution...")
         plt.show()
+
