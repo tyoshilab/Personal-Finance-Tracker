@@ -54,7 +54,7 @@ class DataManagement:
                             self.transactions["Date"].dt.date <= last_date)
                 filtered_transactions = self.transactions[mask]
                 ordered_transactions = filtered_transactions.sort_values('Date')
-                print(ordered_transactions)
+                print(ordered_transactions.to_string(index=False))
             else:
                 print("--- All Transactions ---")
 
@@ -98,8 +98,6 @@ class DataManagement:
             if is_valid:
                 break
 
-        # test_trans = {'Date': '2025-12-12', 'Category': 'TESTING', 'Description': 'TEST', 'Amount': 50.0, 'Type': 'Expense'}
-
         transaction = {
             'Date': trans_date.isoformat(),
             'Category': category,
@@ -122,7 +120,7 @@ class DataManagement:
             return
 
         for i, row in self.transactions.iterrows():
-            print(f"{i}. {row['Date']} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+            print(f"{i}. {row['Date'].date()} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
 
         print("Enter the number of the transaction you want to edit (or 'c' to cancel):")
 
@@ -131,14 +129,10 @@ class DataManagement:
             if user_input.lower() == 'c':
                 print("Edit cancelled.")
                 return
-            try:
-                trans_id = int(user_input)
-                if 0 <= trans_id < len(self.transactions):
-                    break
-                else:
-                    print("Please enter a number from the list.")
-            except ValueError:
-                print("Invalid input. Enter a number or 'c' to cancel.")
+
+            is_valid, trans_id = validate_number_in_range(user_input, 0, len(self.transactions) - 1)
+            if is_valid:
+                break
 
         transaction = self.transactions.loc[trans_id].to_dict()
 
@@ -215,7 +209,7 @@ class DataManagement:
             return
 
         for i, row in self.transactions.iterrows():
-            print(f"{i}. {row['Date']} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+            print(f"{i}. {row['Date'].date()} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
 
         print("Enter the number of the transaction you want to delete (or 'c' to cancel):")
 
@@ -225,14 +219,10 @@ class DataManagement:
             if user_input.lower() == 'c':
                 print("Deletion cancelled.")
                 return
-            try:
-                trans_id = int(user_input)
-                if 0 <= trans_id < len(self.transactions):
-                    break
-                else:
-                    print("Please enter a number from the list.")
-            except ValueError:
-                print("Invalid input. Enter a number or 'c' to cancel.")
+
+            is_valid, trans_id = validate_number_in_range(user_input, 0, len(self.transactions) - 1)
+            if is_valid:
+                break
 
         self.transactions = self.transactions.drop(index=trans_id).reset_index(drop=True)
 

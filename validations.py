@@ -38,3 +38,15 @@ def validate_transaction_type(value):
     except ValueError:
         print("Please enter a valid number.")
         return False, None
+
+def validate_number_in_range(value, range_start, range_end):
+    try:
+        number = int(value)
+        if range_start <= number <= range_end:
+            return True, number
+        else:
+            print(f"Please enter a number between {range_start} and {range_end}.")
+            return False, None
+    except ValueError:
+        print("Invalid input. Please enter a valid number.")
+        return False, None
