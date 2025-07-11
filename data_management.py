@@ -15,8 +15,15 @@ class DataManagement:
 
     def use_csv(self):
         csv_files = glob.glob("*.csv")
+
+        if not csv_files:
+            print("No CSV files found in the current directory. Creating an empty DataFrame.")
+            self.transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
+            return
+        
         for i, file in enumerate(csv_files, start=1):
             print(f"{i}. {file}")
+
         print("Please enter the number of the CSV file you want to import (or 'c' to cancel):")
         while True:
             user_input = input("> ").strip()
@@ -27,6 +34,7 @@ class DataManagement:
             is_valid, _ = validate_number_in_range(user_input, 1, len(csv_files))
             if is_valid:
                 break
+            
         self.transactions = self.load_transactions(csv_files[int(user_input) - 1])
 
     def load_transactions(self, file_path) -> pd.DataFrame:
