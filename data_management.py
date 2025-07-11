@@ -1,5 +1,6 @@
 import pandas as pd
 from validations import *
+import glob
 
 class DataManagement:
     def __init__(self):
@@ -10,24 +11,35 @@ class DataManagement:
             'Amount': pd.Series(dtype='float'),
             'Type': pd.Series(dtype='str')
         })
+        self.file_path = ""
 
     def use_csv(self):
-        # TODO: Do not replace, add the imported transactions
-        file_path = "sampledata.csv"
-        self.transactions = self.load_transactions(file_path)
+        csv_files = glob.glob("*.csv")
+        for i, file in enumerate(csv_files, start=1):
+            print(f"{i}. {file}")
+        print("Please enter the number of the CSV file you want to import (or 'c' to cancel):")
+        while True:
+            user_input = input("> ").strip()
+            if user_input.lower() == 'c':
+                print("Inport cancelled.")
+                return
+
+            is_valid, _ = validate_number_in_range(user_input, 1, len(csv_files))
+            if is_valid:
+                break
+        self.transactions = self.load_transactions(csv_files[int(user_input) - 1])
 
     def load_transactions(self, file_path) -> pd.DataFrame:
         try:
             transactions = pd.read_csv(file_path)
             transactions['Date'] = pd.to_datetime(transactions['Date'])
-        except FileNotFoundError:
-            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
+            print(f"Transactions loaded from {file_path} successfully!")
         except pd.errors.EmptyDataError:
             transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         except Exception as e:
-            print(f"An error occurred while loading transactions: {e}")
+            print(f"An error occurred while loading transactions: {e}\nUsing an empty DataFrame.")
             transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
-        
+        self.file_path = file_path
         return transactions
 
     def view(self, dateRange = False):
