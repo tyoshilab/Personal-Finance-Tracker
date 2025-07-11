@@ -1,33 +1,53 @@
 import pandas as pd
 from validations import *
+import glob
 
 class DataManagement:
     def __init__(self):
         self.transactions = pd.DataFrame({
-            'Date': pd.Series(dtype='str'),
+            'Date': pd.Series(dtype='datetime64[ns]'),
             'Category': pd.Series(dtype='str'),
             'Description': pd.Series(dtype='str'),
             'Amount': pd.Series(dtype='float'),
             'Type': pd.Series(dtype='str')
         })
+        self.file_path = ""
 
     def use_csv(self):
-        # TODO: Do not replace, add the imported transactions
-        file_path = "sampledata.csv"
-        self.transactions = self.load_transactions(file_path)
+        csv_files = glob.glob("*.csv")
+
+        if not csv_files:
+            print("No CSV files found in the current directory. Creating an empty DataFrame.")
+            self.transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
+            return
+        
+        for i, file in enumerate(csv_files, start=1):
+            print(f"{i}. {file}")
+
+        print("Please enter the number of the CSV file you want to import (or 'c' to cancel):")
+        while True:
+            user_input = input("> ").strip()
+            if user_input.lower() == 'c':
+                print("Inport cancelled.")
+                return
+
+            is_valid, _ = validate_number_in_range(user_input, 1, len(csv_files))
+            if is_valid:
+                break
+            
+        self.transactions = self.load_transactions(csv_files[int(user_input) - 1])
 
     def load_transactions(self, file_path) -> pd.DataFrame:
         try:
             transactions = pd.read_csv(file_path)
             transactions['Date'] = pd.to_datetime(transactions['Date'])
-        except FileNotFoundError:
-            transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
+            print(f"Transactions loaded from {file_path} successfully!")
         except pd.errors.EmptyDataError:
             transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
         except Exception as e:
-            print(f"An error occurred while loading transactions: {e}")
+            print(f"An error occurred while loading transactions: {e}\nUsing an empty DataFrame.")
             transactions = pd.DataFrame(columns=['Date', 'Category', 'Description', 'Amount', 'Type'])
-        
+        self.file_path = file_path
         return transactions
 
     def view(self, dateRange = False):
@@ -48,10 +68,10 @@ class DataManagement:
                         break
 
 
-                print(f"--- Transactions from {first_date} to {last_date} ---")
+                print(f"--- Transactions from {first_date.strftime('%Y-%m-%d')} to {last_date.strftime('%Y-%m-%d')} ---")
 
-                mask = (self.transactions["Date"].dt.date >= first_date) & (
-                            self.transactions["Date"].dt.date <= last_date)
+                mask = (self.transactions["Date"] >= first_date) & (
+                            self.transactions["Date"] <= last_date)
                 filtered_transactions = self.transactions[mask]
                 ordered_transactions = filtered_transactions.sort_values('Date')
                 print(ordered_transactions.to_string(index=False))
@@ -99,7 +119,7 @@ class DataManagement:
                 break
 
         transaction = {
-            'Date': trans_date.isoformat(),
+            'Date': trans_date,
             'Category': category,
             'Description': desc,
             'Amount': amount,
@@ -120,7 +140,7 @@ class DataManagement:
             return
 
         for i, row in self.transactions.iterrows():
-            print(f"{i}. {row['Date'].date()} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+            print(f"{i}. {row['Date'].strftime('%Y-%m-%d')} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
 
         print("Enter the number of the transaction you want to edit (or 'c' to cancel):")
 
@@ -164,7 +184,7 @@ class DataManagement:
             new_desc = input(f"Description [{transaction['Description']}]: ").strip()
             if not new_desc:
                 break
-            is_valid = validate_text(new_desc)[0]
+            is_valid = validate_text(new_desc)
             if is_valid:
                 transaction['Description'] = new_desc
                 break
@@ -209,7 +229,7 @@ class DataManagement:
             return
 
         for i, row in self.transactions.iterrows():
-            print(f"{i}. {row['Date'].date()} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+            print(f"{i}. {row['Date'].strftime('%Y-%m-%d')} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
 
         print("Enter the number of the transaction you want to delete (or 'c' to cancel):")
 

@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+import pandas as pd
 
 TRANSACTION_TYPES = ("Expense", "Income")
 
@@ -21,7 +22,7 @@ def validate_money(value):
 
 def validate_date(value):
     try:
-        date_obj = datetime.datetime.strptime(value.strip(), "%Y-%m-%d").date()
+        date_obj = pd.to_datetime(datetime.strptime(value.strip(), "%Y-%m-%d"))
         return True, date_obj
     except ValueError:
         print("Please enter a valid date.")
