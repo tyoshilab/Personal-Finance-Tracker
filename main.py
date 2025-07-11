@@ -10,7 +10,7 @@ class PersonalFinanceTracker:
         self.data_management = DataManagement()
         self.data_analysis = DataAnalysis(self.data_management.transactions)
         self.budget_management = BudgetManagement(self.data_management.transactions)
-        self.visualization = DataVisualization(self.data_management.transactions)
+        self.visualization = DataVisualization(self.data_management.transactions, self.budget_management)
         self.is_running = True
         self.valid_message = ""
         self.menu_options = [

@@ -1,6 +1,6 @@
 import pandas as pd
 class DataManagement:
-    def __init__(self, file_path='transactions.csv'):
+    def __init__(self, file_path='sampledata.csv'):
         self.file_path = file_path
         self.transactions = self.load_transactions()
 
