@@ -5,7 +5,7 @@ import glob
 class DataManagement:
     def __init__(self):
         self.transactions = pd.DataFrame({
-            'Date': pd.Series(dtype='str'),
+            'Date': pd.Series(dtype='datetime64[ns]'),
             'Category': pd.Series(dtype='str'),
             'Description': pd.Series(dtype='str'),
             'Amount': pd.Series(dtype='float'),
@@ -60,7 +60,7 @@ class DataManagement:
                         break
 
 
-                print(f"--- Transactions from {first_date} to {last_date} ---")
+                print(f"--- Transactions from {first_date.strftime('%Y-%m-%d')} to {last_date.strftime('%Y-%m-%d')} ---")
 
                 mask = (self.transactions["Date"].dt.date >= first_date) & (
                             self.transactions["Date"].dt.date <= last_date)
@@ -111,7 +111,7 @@ class DataManagement:
                 break
 
         transaction = {
-            'Date': trans_date.isoformat(),
+            'Date': trans_date,
             'Category': category,
             'Description': desc,
             'Amount': amount,
@@ -132,7 +132,7 @@ class DataManagement:
             return
 
         for i, row in self.transactions.iterrows():
-            print(f"{i}. {row['Date'].date()} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+            print(f"{i}. {row['Date'].strftime('%Y-%m-%d')} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
 
         print("Enter the number of the transaction you want to edit (or 'c' to cancel):")
 
@@ -221,7 +221,7 @@ class DataManagement:
             return
 
         for i, row in self.transactions.iterrows():
-            print(f"{i}. {row['Date'].date()} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
+            print(f"{i}. {row['Date'].strftime('%Y-%m-%d')} | {row['Category']} | {row['Description']} | ${row['Amount']} | {row['Type']}")
 
         print("Enter the number of the transaction you want to delete (or 'c' to cancel):")
 
